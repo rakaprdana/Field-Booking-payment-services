@@ -11,8 +11,8 @@ type KafkaEvent struct {
 }
 
 type KafkaMetaData struct {
-	Sender   string `json:"sender"`
-	SenderAt string `json:"senderAt"`
+	Sender    string `json:"sender"`
+	SendingAt string `json:"senderAt"`
 }
 
 type KafkaData struct {

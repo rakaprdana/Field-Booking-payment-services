@@ -6,15 +6,16 @@ type InvoiceRequest struct {
 }
 
 type InvoiceData struct {
-	PaymentDetail InvoicePaymenrDetail `json:"paymentDetail"`
+	PaymentDetail InvoicePaymentDetail `json:"paymentDetail"`
 	Items         []InvoiceItem        `json:"items"`
 	Total         string               `json:"total"`
 }
 
-type InvoicePaymenrDetail struct {
+type InvoicePaymentDetail struct {
 	BankName      string `json:"bankName"`
 	PaymentMethod string `json:"paymentMethod"`
 	VANumber      string `json:"vaNumber"`
+	Date          string `json:"date"`
 	IsPaid        bool   `json:"isPaid"`
 }
 

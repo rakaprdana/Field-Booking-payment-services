@@ -60,6 +60,7 @@ type PaymentResponse struct {
 	Bank          *string                       `json:"bank"`
 	Acquirer      *string                       `json:"acquirer"`
 	Description   *string                       `json:"description"`
+	ExpiredAt     *time.Time                    `json:"expiredAt"`
 	CreatedAt     *time.Time                    `json:"createdAt"`
 	UpdatedAt     *time.Time                    `json:"updatedAt"`
 }
@@ -74,7 +75,7 @@ type Webhook struct {
 	StatusCode        string                        `json:"status_code"`
 	SignatureKey      string                        `json:"signature_key"`
 	SettlementTime    string                        `json:"settlement_time"`
-	PaymentTyep       string                        `json:"payment_type"`
+	PaymentType       string                        `json:"payment_type"`
 	PaymentAmount     []PaymentAmount               `json:"payment_amount"`
 	OrderID           uuid.UUID                     `json:"order_id"`
 	MerchantID        string                        `json:"merchant_id"`
