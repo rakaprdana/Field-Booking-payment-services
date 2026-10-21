@@ -32,7 +32,7 @@ func (p *PaymentRepository) Create(ctx context.Context,
 		OrderID:     orderID,
 		Amount:      req.Amount,
 		PaymentLink: req.PaymentLink,
-		ExpiredAt:   req.ExpiredAt,
+		ExpiredAt:   &req.ExpiredAt,
 		Description: &req.Description,
 		Status:      &status,
 	}
