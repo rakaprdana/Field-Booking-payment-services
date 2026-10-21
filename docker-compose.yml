@@ -1,0 +1,15 @@
+name: field-booking # change this to your app name
+services:
+  field-service: # change this to your service name
+    container_name: field-service # change this to your service name
+    # image: rakaprdana/field-service:1 # change this to your image name
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8002" # change this to your port
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    env_file:
+      - .env
