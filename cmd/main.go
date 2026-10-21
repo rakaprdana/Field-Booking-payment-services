@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"net/http"
 	"payment-services/clients"
+	midtransClient "payment-services/clients/midtrans"
 	"payment-services/common/gcs"
 	response "payment-services/common/reponses"
 	"payment-services/config"
 	"payment-services/constants"
-	"payment-services/controllers"
-	"payment-services/domains/models"
+	controller "payment-services/controllers/http"
+	kafkaClient "payment-services/controllers/kafka"
+	"payment-services/domain/models"
 	"payment-services/middlewares"
 	"payment-services/repositories"
 	"payment-services/routes"
@@ -42,9 +44,8 @@ var command = &cobra.Command{
 		time.Local = loc
 
 		err = db.AutoMigrate(
-			&models.Field{},
-			&models.FieldSchedule{},
-			&models.Time{},
+			&models.Payment{},
+			&models.PaymentHistory{},
 		)
 
 		if err != nil {
@@ -53,10 +54,18 @@ var command = &cobra.Command{
 
 		// Initialize GCS client
 		gcs := initGCS()
+		// Initialize Kafka for broker message
+		kafka := kafkaClient.NewKafkaRegistry(config.Config.Kafka.Brokers)
+		// Initialize Midtrans for payment gateway
+		midtrans := midtransClient.NewMidtransClient(
+			config.Config.Midtrans.ServerKey,
+			config.Config.Midtrans.IsProduction,
+		)
+
 		client := clients.NewClientRegistry()
-		repository := repositories.NewRepositoryRegistry(db)
-		service := services.NewServiceRegistry(repository, gcs)
-		controller := controllers.NewControllerRegistry(service)
+		repository := repositories.NewRepositoryRegsitry(db)
+		service := services.NewServiceRegistry(repository, gcs, kafka, midtrans)
+		controller := controller.NewControllerRegistry(service)
 
 		router := gin.Default()
 		router.Use(middlewares.HandlePanic())
@@ -70,7 +79,7 @@ var command = &cobra.Command{
 		router.GET("/", func(ctx *gin.Context) {
 			ctx.JSON(http.StatusOK, response.Response{
 				Status:  constants.Success,
-				Message: "Welcome to field service",
+				Message: "Welcome to payment service",
 			})
 		})
 		router.Use(func(ctx *gin.Context) {
@@ -88,7 +97,7 @@ var command = &cobra.Command{
 		router.Use(middlewares.RateLimiter(lmt))
 
 		group := router.Group("/api/v1")
-		route := routes.NewRouteRegistry(group, controller, client)
+		route := routes.NewRouteRegistry(controller, group, client)
 		route.Serve()
 
 		port := fmt.Sprintf(":%d", config.Config.Port)
