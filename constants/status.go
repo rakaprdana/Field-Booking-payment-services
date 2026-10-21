@@ -9,10 +9,10 @@ const (
 	Settlement PaymentStatus = 200
 	Expire     PaymentStatus = 300
 
-	InitialString    PaymentStatusString = "Initial"
-	PendingString    PaymentStatusString = "Pending"
-	SettlementString PaymentStatusString = "Settlement"
-	ExpireString     PaymentStatusString = "Expire"
+	InitialString    PaymentStatusString = "initial"
+	PendingString    PaymentStatusString = "pending"
+	SettlementString PaymentStatusString = "settlement"
+	ExpireString     PaymentStatusString = "expire"
 )
 
 var mapStatusStringToInt = map[PaymentStatusString]PaymentStatus{
@@ -29,6 +29,12 @@ var mapStatusIntToString = map[PaymentStatus]PaymentStatusString{
 	Expire:     ExpireString,
 }
 
+func (p PaymentStatusString) String() string {
+	return string(p)
+}
+func (p PaymentStatus) Int() int {
+	return int(p)
+}
 func (p PaymentStatus) GetStatusString() PaymentStatusString {
 	return mapStatusIntToString[p]
 }

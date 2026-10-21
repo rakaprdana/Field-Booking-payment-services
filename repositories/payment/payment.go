@@ -54,7 +54,7 @@ func (p *PaymentRepository) FindAllWithPagination(ctx context.Context, param *dt
 		total    int64
 	)
 	order := "desc"
-	if param.SortOrder != nil && *param.SortOrder != " " {
+	if param.SortOrder != nil && *param.SortOrder != "" {
 		order = *param.SortOrder
 	}
 

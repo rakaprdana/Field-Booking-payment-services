@@ -110,14 +110,14 @@ func (p *PaymentService) GetAllWithPagination(ctx context.Context, param *dto.Pa
 		})
 	}
 
-	paginationParam := utils.PaginationParams{
+	paginationParam := &utils.PaginationParams{
 		Count: int(total),
 		Page:  param.Page,
 		Limit: param.Limit,
 		Data:  paymentResult,
 	}
 
-	response := utils.GeneratePagination(paginationParam)
+	response := utils.GeneratePagination(*paginationParam)
 	return &response, nil
 }
 
@@ -171,7 +171,7 @@ func (p *PaymentService) Webhook(ctx context.Context, req *dto.Webhook) error {
 		status := req.TransactionStatus.GetStatusInt()
 		vaNumber := req.VANumbers[0].VaNumber
 		bank := req.VANumbers[0].Bank
-		paymentAfterUpdate, txErr = p.repository.GetPayment().Update(ctx, tx, req.OrderID.String(), &dto.UpdatePaymentRequest{
+		_, txErr = p.repository.GetPayment().Update(ctx, tx, req.OrderID.String(), &dto.UpdatePaymentRequest{
 			TransactionID: &req.TransactionID,
 			Status:        &status,
 			PaidAt:        paidAt,
@@ -180,6 +180,11 @@ func (p *PaymentService) Webhook(ctx context.Context, req *dto.Webhook) error {
 			Acquirer:      req.Acquirer,
 		})
 
+		if txErr != nil {
+			return txErr
+		}
+
+		paymentAfterUpdate, txErr = p.repository.GetPayment().FindByOrderID(ctx, req.OrderID.String())
 		if txErr != nil {
 			return txErr
 		}
@@ -368,6 +373,7 @@ func (p *PaymentService) produceToKafka(
 			PaymentID: payment.UUID,
 			Status:    req.TransactionStatus.String(),
 			PaidAt:    paidAt,
+			ExpiredAt: *payment.ExpiredAt,
 		},
 	}
 
