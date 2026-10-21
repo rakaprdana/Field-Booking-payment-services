@@ -13,7 +13,7 @@ watch: ## Run the service with hot reload
 
 ## Build:
 build: ## Build the service
-	go build -o field-service
+	go build -o payment-service
 
 ## Docker:
 docker-compose: ## Start the service in docker
@@ -25,7 +25,7 @@ docker-build: ## Build the Docker image with a specified tag
 		echo "$(YELLOW)Error: Please specify the 'tag' parameter, e.g., make docker-build tag=1.0.0$(RESET)"; \
 		exit 1; \
 	fi
-	docker build --platform linux/amd64 -t rakaprdana/field-service:$(tag) .
+	docker build --platform linux/amd64 -t rakaprdana/payment-service:$(tag) .
 	@echo "$(GREEN)Docker image built with tag '$(tag)'$(RESET)"
 
 docker-push: ## Build the Docker image with a specified tag
@@ -34,5 +34,5 @@ docker-push: ## Build the Docker image with a specified tag
 		echo "$(YELLOW)Error: Please specify the 'tag' parameter, e.g., make docker-push tag=1.0.0$(RESET)"; \
 		exit 1; \
 	fi
-	docker push rakaprdana/field-service:$(tag)
+	docker push rakaprdana/payment-service:$(tag)
 	@echo "$(GREEN)Docker image built with tag '$(tag)'$(RESET)"

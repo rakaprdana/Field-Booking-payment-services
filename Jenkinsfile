@@ -2,7 +2,7 @@ pipeline {
   agent any
 
   environment {
-    IMAGE_NAME = 'field-service' // diganti dengan nama image Docker yang akan dibuat
+    IMAGE_NAME = 'payment-service' // diganti dengan nama image Docker yang akan dibuat
     DOCKER_CREDENTIALS = credentials('docker-credential')
     GITHUB_CREDENTIALS = credentials('github-credential')
     SSH_KEY = credentials('ssh-key')
@@ -106,7 +106,7 @@ pipeline {
           sh """
           git config --global user.name 'Jenkins CI'
           git config --global user.email 'jenkins@company.com'
-          git remote set-url origin https://${GITHUB_CREDENTIALS_USR}:${GITHUB_CREDENTIALS_PSW}@github.com/Mini-Soccer-Project/field-service.git // diganti dengan URL repository Git (komentar ini nanti dihapus)
+          git remote set-url origin https://${GITHUB_CREDENTIALS_USR}:${GITHUB_CREDENTIALS_PSW}@github.com/Mini-Soccer-Project/payment-service.git // diganti dengan URL repository Git (komentar ini nanti dihapus)
           git add docker-compose.yaml
           git commit -m 'Update image version to ${TARGET_BRANCH}-${currentBuild.number} [skip ci]' || echo 'No changes to commit'
           git pull origin ${TARGET_BRANCH} --rebase
@@ -119,7 +119,7 @@ pipeline {
     stage('Deploy to Remote Server') {
       steps {
         script {
-          def targetDir = "/home/rakaprdana/field-booking/field-service" // diganti dengan direktori tempat menyimpan kode di server
+          def targetDir = "/home/rakaprdana/field-booking/payment-service" // diganti dengan direktori tempat menyimpan kode di server
           def sshCommandToServer = """
           ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ${USERNAME}@${HOST} '
             if [ -d "${targetDir}/.git" ]; then
@@ -128,14 +128,14 @@ pipeline {
                 git pull origin "${TARGET_BRANCH}"
             else
                 echo "Directory does not exist. Cloning repository."
-                git clone -b "${TARGET_BRANCH}" git@github.com:Mini-Soccer-Project/field-service.git "${targetDir}" // diganti dengan URL repository Git (komentar ini nanti dihapus)
+                git clone -b "${TARGET_BRANCH}" git@github.com:Mini-Soccer-Project/payment-service.git "${targetDir}" // diganti dengan URL repository Git (komentar ini nanti dihapus)
                 cd "${targetDir}"
             fi
 
             cp .env.example .env
             sed -i "s/^TIMEZONE=.*/TIMEZONE=Asia\\/Jakarta/" "${targetDir}/.env"
             sed -i "s/^CONSUL_HTTP_URL=.*/CONSUL_HTTP_URL=${CONSUL_HTTP_URL}/" "${targetDir}/.env"
-            sed -i "s/^CONSUL_HTTP_PATH=.*/CONSUL_HTTP_PATH=backend\\/field-service/" "${targetDir}/.env"
+            sed -i "s/^CONSUL_HTTP_PATH=.*/CONSUL_HTTP_PATH=backend\\/payment-service/" "${targetDir}/.env"
             sed -i "s/^CONSUL_HTTP_TOKEN=.*/CONSUL_HTTP_TOKEN=${CONSUL_HTTP_TOKEN}/" "${targetDir}/.env"
             sed -i "s/^CONSUL_WATCH_INTERVAL_SECONDS=.*/CONSUL_WATCH_INTERVAL_SECONDS=${CONSUL_WATCH_INTERVAL_SECONDS}/" "${targetDir}/.env"
             sudo docker compose up -d --build --force-recreate
