@@ -10,6 +10,7 @@ import (
 type Payment struct {
 	ID            uint                     `gorm:"primaryKey;autoIncrement"`
 	UUID          uuid.UUID                `gorm:"type:uuid;not null"`
+	OrderID       uuid.UUID                `gorm:"type:uuid;not null"`
 	Amount        float64                  `gorm:"not null"`
 	Status        *constants.PaymentStatus `gorm:"not null"`
 	PaymentLink   string                   `gorm:"type:varchar(255);not null"`
