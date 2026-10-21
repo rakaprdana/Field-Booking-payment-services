@@ -1,28 +1,53 @@
-FROM golang:alpine AS builder
+FROM surnet/alpine-wkhtmltopdf AS builder
+FROM golang:alpine
 
-RUN apk update
-RUN apk add git openssh tzdata build-base python3 net-tools
+RUN mkdir /app
+RUN apk update && \
+    apk add --no-cache git openssh tzdata build-base python3 net-tools
+
+RUN  apk update && apk add --no-cache \
+      libstdc++ \
+      libx11 \
+      libxrender \
+      libxext \
+      libressl \
+      ca-certificates \
+      fontconfig \
+      freetype \
+      ttf-dejavu \
+      ttf-droid \
+      ttf-freefont \
+      ttf-liberation \
+    && apk add --no-cache --virtual .build-deps \
+      msttcorefonts-installer \
+    \
+    # Install Microsoft fonts
+    && update-ms-fonts \
+    && fc-cache -f \
+    \
+    # Clean up when done
+    && rm -rf /var/cache/apk/* \
+    && rm -rf /tmp/* \
+    && apk del .build-deps
 
 WORKDIR /app
 
-COPY .env .env.example
+COPY .env.example .env
 COPY . .
 
 RUN go install github.com/buu700/gin@latest
+RUN GO111MODULE=auto
 RUN go mod tidy
 
 RUN make build
 
-FROM alpine:latest
+ENV TZ=Asia/Jakarta
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-RUN apk update && apk upgrade && \
-    apk --update --no-cache add tzdata && \
-    apk --no-cache add curl && \
-    mkdir /app
+COPY --from=builder /bin/wkhtmltopdf /bin/wkhtmltopdf
+COPY --from=builder /bin/wkhtmltoimage /bin/wkhtmltoimage
 
 WORKDIR /app
+EXPOSE 8003
 
-EXPOSE 8001
-
-COPY --from=builder /app /app
-ENTRYPOINT [ "/app/field-service" ]
+ENTRYPOINT ["/app/payment-service"]
