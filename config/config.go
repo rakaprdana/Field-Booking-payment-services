@@ -63,7 +63,7 @@ type Kafka struct {
 type Midtrans struct {
 	ServerKey    string `json:"stringKey"`
 	ClientKey    string `json:"clientKey"`
-	IsProduction bool   `json:"isProduction`
+	IsProduction bool   `json:"isProduction"`
 }
 
 func Init() {

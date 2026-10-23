@@ -8,9 +8,10 @@ pipeline {
     SSH_KEY = credentials('ssh-key')
     HOST = credentials('host')
     USERNAME = credentials('username')
-    CONSUL_HTTP_URL = credentials('consul-http-url')
+    CONSUL_HTTP_KEY="backend/payment-services"
     CONSUL_HTTP_TOKEN = credentials('consul-http-token')
     CONSUL_WATCH_INTERVAL_SECONDS = 60
+    VALIDATE_TOKEN = credentials("validate-token")
   }
 
   stages {
